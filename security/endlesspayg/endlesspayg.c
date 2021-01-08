@@ -32,6 +32,11 @@ static pid_t paygd_pid = -1;
 # error CONFIG_ALLOW_LOCKDOWN_LIFT_BY_SYSRQ needs to be disabled for PAYG systems
 #endif
 
+static struct lsm_id payg_lsmid __lsm_ro_after_init = {
+	.lsm  = "endlesspayg",
+	.slot = LSMBLOB_NEEDED
+};
+
 bool eospayg_enforcing(void)
 {
 	return paygd_pid != -1;
@@ -255,8 +260,7 @@ static int __init payg_lsm_init(void)
 	if (!payg_active)
 		return 0;
 
-	security_add_hooks(payg_hooks, ARRAY_SIZE(payg_hooks),
-			   "endlesspayg");
+	security_add_hooks(payg_hooks, ARRAY_SIZE(payg_hooks), &payg_lsmid);
 	return 0;
 }
 
